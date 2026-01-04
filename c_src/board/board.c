@@ -389,3 +389,19 @@ void board_print(const Board *board) {
 	}
 	printf(")\n");
 }
+
+float board_get_reward_green_apple(void) {
+	return REWARD_GREEN_APPLE;
+}
+
+float board_get_reward_red_apple(void) {
+	return REWARD_RED_APPLE;
+}
+
+float board_get_reward_death(void) {
+	return REWARD_DEATH;
+}
+
+float board_get_reward_step(void) {
+	return REWARD_STEP;
+}

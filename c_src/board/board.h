@@ -14,6 +14,12 @@
 #define NUM_APPLES (NUM_GREEN_APPLES + NUM_RED_APPLES)
 #define MAX_SNAKE_LENGTH ((BOARD_SIZE * BOARD_SIZE) - 1)
 
+// ============= REWARDS (for RL) =============
+#define REWARD_GREEN_APPLE  (10.0f)
+#define REWARD_RED_APPLE    (-10.0f)
+#define REWARD_DEATH        (-50.0f)   // wall, self, or length-zero
+#define REWARD_STEP         (-0.1f)    // small living/step penalty
+
 // ============= COMPILE-TIME VALIDATION =============
 #if BOARD_SIZE < 10
 # error "BOARD_SIZE must be at least 10"
@@ -75,6 +81,12 @@ int     board_get_length(const Board* board);
 int     board_get_max_length(const Board* board);
 int     board_get_moves(const Board* board);
 unsigned short board_get_state(const Board* board);  // Snake vision (12 bits)
+
+// Rewards accessors (mirrors macros for Python/ctypes)
+float   board_get_reward_green_apple(void);
+float   board_get_reward_red_apple(void);
+float   board_get_reward_death(void);
+float   board_get_reward_step(void);
 
 // Debug/display
 void    board_print(const Board* board);

@@ -8,6 +8,13 @@ handling memory management and type conversions.
 from ctypes import c_void_p, c_int, c_bool
 
 from ._library import board_lib
+from ._types import Actions, Direction
+from .rewards import (
+    REWARD_DEATH,
+    REWARD_GREEN_APPLE,
+    REWARD_RED_APPLE,
+    REWARD_STEP,
+)
 
 
 # Define C function signatures
@@ -173,3 +180,28 @@ class GameBoard:
             int: 12-bit state representing neighboring cells
         """
         return board_lib.board_get_state(self._board)
+
+    def step(self, direction: int) -> tuple[int, float, bool]:
+        """
+        Perform one action in the environment.
+
+        Args:
+            direction: Direction enum value (UP, LEFT, DOWN, RIGHT)
+
+        Returns:
+            tuple[int, float, bool]: (next_state, reward, done)
+        """
+        result = board_lib.board_move(self._board, direction)
+
+        if result == Actions.ATE_GREEN_APPLE:
+            reward = REWARD_GREEN_APPLE
+        elif result == Actions.ATE_RED_APPLE:
+            reward = REWARD_RED_APPLE
+        elif result in (Actions.HIT_WALL, Actions.HIT_SELF, Actions.LENGTH_ZERO):
+            reward = REWARD_DEATH
+        else:
+            reward = REWARD_STEP
+
+        done = bool(board_lib.board_is_game_over(self._board))
+        state = board_lib.board_get_state(self._board)
+        return state, reward, done
