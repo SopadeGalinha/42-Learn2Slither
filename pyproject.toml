@@ -1,0 +1,27 @@
+[project]
+name = "learn2slither"
+version = "0.1.0"
+description = "A snake that learns how to behave in an environment through trial and error."
+authors = [{ name = "Jhonata" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "ctypes-builtin",  # To interface with C code
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",  # For testing
+    "pygame>=2.5",  # For game visualization
+    "numpy>=1.24",  # For AI calculations
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+    { include = "slither", from = "." }
+]
