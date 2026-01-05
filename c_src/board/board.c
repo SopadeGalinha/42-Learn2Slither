@@ -309,6 +309,18 @@ int board_get_moves(const Board *board) {
 	return board ? board->moves : 0;
 }
 
+BoardCell board_get_cell(const Board *board, int x, int y) {
+	if (!board)
+		return EMPTY;
+	if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE)
+		return WALL;
+	return board->grid[y][x];
+}
+
+int board_get_size(void) {
+	return BOARD_SIZE;
+}
+
 unsigned short board_get_state(const Board *board) {
 	if (!board)
 		return 0;

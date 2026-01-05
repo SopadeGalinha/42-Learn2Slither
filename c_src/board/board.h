@@ -81,6 +81,8 @@ int     board_get_length(const Board* board);
 int     board_get_max_length(const Board* board);
 int     board_get_moves(const Board* board);
 unsigned short board_get_state(const Board* board);  // Snake vision (12 bits)
+BoardCell board_get_cell(const Board* board, int x, int y);
+int     board_get_size(void);
 
 // Rewards accessors (mirrors macros for Python/ctypes)
 float   board_get_reward_green_apple(void);

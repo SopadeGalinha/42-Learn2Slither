@@ -61,6 +61,14 @@ def _setup_c_functions() -> None:
     board_lib.board_get_state.argtypes = [c_void_p]
     board_lib.board_get_state.restype = c_int
 
+    # BoardCell board_get_cell(const Board* board, int x, int y)
+    board_lib.board_get_cell.argtypes = [c_void_p, c_int, c_int]
+    board_lib.board_get_cell.restype = c_int
+
+    # int board_get_size(void)
+    board_lib.board_get_size.argtypes = []
+    board_lib.board_get_size.restype = c_int
+
     # void board_print(const Board* board)
     board_lib.board_print.argtypes = [c_void_p]
     board_lib.board_print.restype = None
@@ -180,6 +188,15 @@ class GameBoard:
             int: 12-bit state representing neighboring cells
         """
         return board_lib.board_get_state(self._board)
+
+    @property
+    def size(self) -> int:
+        """Get board dimension (BOARD_SIZE)."""
+        return board_lib.board_get_size()
+
+    def get_cell(self, x: int, y: int) -> int:
+        """Get the cell value at (x, y)."""
+        return board_lib.board_get_cell(self._board, x, y)
 
     def step(self, direction: int) -> tuple[int, float, bool]:
         """
