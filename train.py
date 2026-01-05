@@ -121,6 +121,11 @@ def run_episode(
             if not viewer.render(board, info):
                 break
 
+            # Wait for input on game over screen
+            if done:
+                if not viewer.wait_for_game_over():
+                    break  # User chose to quit
+
         if done:
             break
 

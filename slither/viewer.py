@@ -58,6 +58,48 @@ class RenderInfo:
     fps: int = 10
 
 
+@dataclass
+class SessionStats:
+    """Statistics tracked across the training session."""
+    # Session totals (never reset)
+    episodes_played: int = 0
+    max_length: int = 0
+    max_steps: int = 0
+    wins: int = 0  # Episodes where length >= 10
+    
+    # Current episode (reset each episode)
+    episode_greens: int = 0
+    episode_reds: int = 0
+    _last_episode: int = 0
+
+    def update(self, info: RenderInfo, green_eaten: bool = False, red_eaten: bool = False) -> None:
+        """Update stats based on current render info."""
+        # Detect new episode
+        if info.episode != self._last_episode:
+            self._last_episode = info.episode
+            self.episode_greens = 0
+            self.episode_reds = 0
+        
+        if green_eaten:
+            self.episode_greens += 1
+        if red_eaten:
+            self.episode_reds += 1
+
+        # Update session bests
+        if info.length > self.max_length:
+            self.max_length = info.length
+
+    def end_episode(self, info: RenderInfo) -> None:
+        """Called when an episode ends."""
+        self.episodes_played += 1
+        
+        if info.step > self.max_steps:
+            self.max_steps = info.step
+
+        if info.length >= 10:
+            self.wins += 1
+
+
 class Viewer:
     """Pygame-based viewer for the snake board."""
 
@@ -114,6 +156,10 @@ class Viewer:
 
         self._splash_shown = False
         self._paused = True  # Start paused after splash
+
+        # Session statistics
+        self.stats = SessionStats()
+        self._last_length = 0  # To detect apple eating
 
     @property
     def screen(self) -> pygame.Surface:
@@ -294,7 +340,7 @@ class Viewer:
         # Subtitle
         sub_surf = self.font_small.render("Reinforcement Learning", True, self.text_dim)
         self.screen.blit(sub_surf, (x, y))
-        y += 35
+        y += 25
 
         # Legend items
         legend_items = [
@@ -307,26 +353,61 @@ class Viewer:
 
         for color, label in legend_items:
             # Color square
-            rect = pygame.Rect(x, y, 16, 16)
+            rect = pygame.Rect(x, y, 14, 14)
             pygame.draw.rect(self.screen, color, rect, border_radius=3)
             # Label
             label_surf = self.font_small.render(label, True, self.text)
-            self.screen.blit(label_surf, (x + 24, y + 1))
-            y += 24
+            self.screen.blit(label_surf, (x + 20, y))
+            y += 20
 
         # Goal section
-        y += 15
+        y += 6
         goal_surf = self.font_small.render("Goal: Length >= 10", True, self.highlight)
         self.screen.blit(goal_surf, (x, y))
 
+        # Episode Stats section (current episode)
+        y += 20
+        pygame.draw.line(self.screen, self.grid_line, (x, y), (x + 160, y), 1)
+        y += 6
+        ep_title = self.font_small.render("This Episode", True, self.text)
+        self.screen.blit(ep_title, (x, y))
+        y += 16
+
+        ep_items = [
+            (f"Greens: {self.stats.episode_greens}", self.apple_green),
+            (f"Reds: {self.stats.episode_reds}", self.apple_red),
+        ]
+        for text, color in ep_items:
+            stat_surf = self.font_small.render(text, True, color)
+            self.screen.blit(stat_surf, (x, y))
+            y += 14
+
+        # Session Stats section (accumulated)
+        y += 8
+        pygame.draw.line(self.screen, self.grid_line, (x, y), (x + 160, y), 1)
+        y += 6
+        sess_title = self.font_small.render("Session Best", True, self.text)
+        self.screen.blit(sess_title, (x, y))
+        y += 16
+
+        sess_items = [
+            f"Max Len: {self.stats.max_length}",
+            f"Wins: {self.stats.wins}/{self.stats.episodes_played}",
+        ]
+        for stat in sess_items:
+            stat_surf = self.font_small.render(stat, True, self.text_dim)
+            self.screen.blit(stat_surf, (x, y))
+            y += 14
+
         # Controls section
-        y += 30
-        if self.step_mode:
-            ctrl_surf = self.font_small.render(
-                "[Space/Enter] Step", True, self.text_dim
-            )
+        y += 8
+        if self.step_mode or self.manual_mode:
+            if self.manual_mode:
+                ctrl_surf = self.font_small.render("[Arrows] Move", True, self.text_dim)
+            else:
+                ctrl_surf = self.font_small.render("[Space/Enter] Step", True, self.text_dim)
             self.screen.blit(ctrl_surf, (x, y))
-            y += 18
+            y += 14
         quit_surf = self.font_small.render("[Q/Esc] Quit", True, self.text_dim)
         self.screen.blit(quit_surf, (x, y))
 
@@ -402,16 +483,12 @@ class Viewer:
 
     def get_manual_action(self) -> int:
         """Wait for arrow key input and return action index. Returns -1 if quit."""
-        # Action mapping: 0=UP, 1=LEFT, 2=DOWN, 3=RIGHT
+        # Action mapping: 0=UP, 1=LEFT, 2=DOWN, 3=RIGHT (arrows only)
         key_to_action = {
             pygame.K_UP: 0,
             pygame.K_LEFT: 1,
             pygame.K_DOWN: 2,
             pygame.K_RIGHT: 3,
-            pygame.K_w: 0,
-            pygame.K_a: 1,
-            pygame.K_s: 2,
-            pygame.K_d: 3,
         }
         while True:
             for event in pygame.event.get():
@@ -444,6 +521,14 @@ class Viewer:
 
         self._ensure_screen(board.size)
 
+        # Track apple eating for stats
+        green_eaten = info.length > self._last_length
+        red_eaten = info.length < self._last_length and info.reward < 0
+        self._last_length = info.length
+
+        # Update session stats
+        self.stats.update(info, green_eaten, red_eaten)
+
         # Reset splash flag
         if self._splash_shown:
             self._splash_shown = False
@@ -457,6 +542,11 @@ class Viewer:
         # Show pause overlay if paused
         if self._paused:
             self._draw_pause_overlay()
+
+        # Show game over overlay if done
+        if info.done:
+            self.stats.end_episode(info)
+            self._draw_game_over_overlay(info)
 
         pygame.display.flip()
 
@@ -502,6 +592,56 @@ class Viewer:
         prompt_surf = self.font_splash.render("[Press SPACE to start]", True, self.text)
         self.screen.blit(prompt_surf, (center_x - prompt_surf.get_width() // 2, center_y + 50))
 
+    def _draw_game_over_overlay(self, info: RenderInfo) -> None:
+        """Draw game over overlay with stats."""
+        # Semi-transparent overlay
+        overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 160))
+        self.screen.blit(overlay, (0, 0))
+
+        center_x = self.screen.get_width() // 2
+        y = self.screen.get_height() // 2 - 100
+
+        # Game Over title
+        is_win = info.length >= 10
+        title = "VICTORY!" if is_win else "GAME OVER"
+        title_color = self.apple_green if is_win else self.apple_red
+        title_surf = self.font_splash_title.render(title, True, title_color)
+        self.screen.blit(title_surf, (center_x - title_surf.get_width() // 2, y))
+
+        # Episode stats box
+        y += 50
+        box_width = 200
+        box_height = 130
+        box_x = center_x - box_width // 2
+        box_rect = pygame.Rect(box_x, y, box_width, box_height)
+        pygame.draw.rect(self.screen, self.hud_bg, box_rect, border_radius=8)
+        pygame.draw.rect(self.screen, self.grid_line, box_rect, width=2, border_radius=8)
+
+        # Stats content
+        y += 15
+        stats = [
+            ("Episode", str(info.episode)),
+            ("Steps", str(info.step)),
+            ("Length", str(info.length)),
+            ("Score", str(info.score)),
+            ("Best Length", str(self.stats.max_length)),
+        ]
+
+        for label, value in stats:
+            label_surf = self.font_small.render(f"{label}:", True, self.text_dim)
+            value_color = self.highlight if label == "Best Length" else self.text
+            value_surf = self.font_small.render(value, True, value_color)
+            self.screen.blit(label_surf, (box_x + 15, y))
+            self.screen.blit(value_surf, (box_x + box_width - 15 - value_surf.get_width(), y))
+            y += 20
+
+        # Continue prompt
+        y = box_rect.bottom + 20
+        prompt = "[SPACE] Continue  [Q] Quit"
+        prompt_surf = self.font_splash_small.render(prompt, True, self.text_dim)
+        self.screen.blit(prompt_surf, (center_x - prompt_surf.get_width() // 2, y))
+
     def _wait_for_unpause(self) -> bool:
         """Wait for user to press Space to unpause. Returns False if quit requested."""
         while True:
@@ -523,6 +663,24 @@ class Viewer:
                 return False
             if advance:
                 return True
+            self.clock.tick(30)
+
+    def wait_for_game_over(self) -> bool:
+        """Wait for user input on game over screen. Returns True to continue, False to quit."""
+        if self._screen is None:
+            return False
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return False
+                if event.type == pygame.KEYDOWN:
+                    if event.key in (pygame.K_q, pygame.K_ESCAPE):
+                        return False
+                    if event.key == pygame.K_SPACE:
+                        # Reset for next episode
+                        self._paused = False
+                        self._last_length = 0
+                        return True
             self.clock.tick(30)
 
     def wait_for_close(self) -> None:
@@ -552,4 +710,4 @@ class Viewer:
         )
 
 
-__all__ = ["Viewer", "RenderInfo"]
+__all__ = ["Viewer", "RenderInfo", "SessionStats"]
