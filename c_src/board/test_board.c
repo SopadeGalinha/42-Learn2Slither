@@ -17,7 +17,7 @@ static int g_total = 0;
 
 #define SECTION(name) printf("\n%s\n", name)
 
-void test_creation_destruction(void) {
+static void test_creation_destruction(void) {
     SECTION("[Creation & Destruction]");
     
     Board* board = board_create();
@@ -32,7 +32,7 @@ void test_creation_destruction(void) {
     TEST("board_destroy handles NULL", 1);
 }
 
-void test_initial_state(void) {
+static void test_initial_state(void) {
     SECTION("[Initial State]");
     
     Board* board = board_create();
@@ -52,7 +52,7 @@ void test_initial_state(void) {
     board_destroy(board);
 }
 
-void test_state_encoding(void) {
+static void test_state_encoding(void) {
     SECTION("[State Encoding]");
     
     Board* board = board_create();
@@ -67,7 +67,7 @@ void test_state_encoding(void) {
     board_destroy(board);
 }
 
-void test_movement(void) {
+static void test_movement(void) {
     SECTION("[Movement]");
     
     Board* board = board_create();
@@ -89,7 +89,7 @@ void test_movement(void) {
     board_destroy(board);
 }
 
-void test_cell_access(void) {
+static void test_cell_access(void) {
     SECTION("[Cell Access]");
     
     Board* board = board_create();
@@ -114,7 +114,7 @@ void test_cell_access(void) {
     board_destroy(board);
 }
 
-void test_reset(void) {
+static void test_reset(void) {
     SECTION("[Reset]");
     
     Board* board = board_create();
@@ -140,7 +140,7 @@ void test_reset(void) {
     board_destroy(board);
 }
 
-void test_game_over(void) {
+static void test_game_over(void) {
     SECTION("[Game Over Detection]");
     
     Board* board = board_create();
@@ -165,7 +165,7 @@ void test_game_over(void) {
     board_destroy(board);
 }
 
-void test_rewards(void) {
+static void test_rewards(void) {
     SECTION("[Reward Constants]");
     
     TEST("rewards: green>0, red<0, death<0, step<0",
