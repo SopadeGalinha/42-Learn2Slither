@@ -1,85 +1,48 @@
-CC := gcc
-CFLAGS := -Wall -Wextra -Werror -g -fPIC -std=c99
-LDFLAGS := -shared
+.SILENT:
+MAKEFLAGS += --no-print-directory
 
-# Directories
-C_SRC_DIR := c_src/board
-BUILD_DIR := build
-LIBDIR := lib
+.PHONY: all lib clean fclean re test valgrind info help
 
-# Sources
-C_SOURCES := $(C_SRC_DIR)/board.c
-TEST_SOURCES := $(C_SRC_DIR)/test_board.c
-OBJECTS := $(BUILD_DIR)/board.o
+# Default target
+all: lib
 
-# Targets
-SHARED_LIB := $(LIBDIR)/libboard.so
-TEST_EXEC := $(BUILD_DIR)/test_board
+# Build C library
+lib:
+	@cd c_src && $(MAKE) all
 
-.PHONY: all clean test lib dirs help format lint
+# Run C tests
+test:
+	@cd c_src && $(MAKE) test
 
-# ==================== DEFAULT TARGET ====================
-
-all: lib test
-	@echo "✓ Build complete"
-
-help:
-	@echo "Available targets:"
-	@echo "  make lib        - Build C library"
-	@echo "  make test       - Run C tests"
-	@echo "  make format     - Format code (C and Python)"
-	@echo "  make lint       - Check code style"
-	@echo "  make clean      - Remove build artifacts"
-
-# ==================== BUILD TARGETS ====================
-
-lib: dirs $(SHARED_LIB)
-
-test: lib $(TEST_EXEC)
-	@echo "Running tests..."
-	@$(TEST_EXEC)
-
-dirs:
-	@mkdir -p $(BUILD_DIR) $(LIBDIR)
-
-$(BUILD_DIR)/board.o: $(C_SOURCES) | dirs
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(SHARED_LIB): $(OBJECTS) | dirs
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
-	@echo "✓ Shared library built: $@"
-
-$(TEST_EXEC): $(OBJECTS) $(TEST_SOURCES) | dirs
-	$(CC) $(CFLAGS) $^ -o $@
-	@echo "✓ Test executable built: $@"
-
-# ==================== CODE QUALITY ====================
-
-format:
-	@echo "Formatting C code..."
-	@clang-format -i $(C_SOURCES) $(TEST_SOURCES)
-	@echo "Formatting Python code..."
-	@find . -name "*.py" -type f ! -path "./venv/*" ! -path "./build/*" -exec python3 -m black {} \;
-	@echo "✓ Code formatted"
-
-lint:
-	@echo "Checking code style..."
-	@find . -name "*.py" -type f ! -path "./venv/*" ! -path "./build/*" -exec python3 -m flake8 {} \;
-	@echo "✓ Style check complete"
-
-# ==================== CLEANUP ====================
-
+# Clean build artifacts
 clean:
-	@rm -rf $(BUILD_DIR) $(LIBDIR)
-	@find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-	@find . -type f -name "*.pyc" -delete
-	@echo "✓ Cleaned build artifacts"
+	@cd c_src && $(MAKE) clean
 
-# ==================== INFO ====================
+# Full clean (remove library)
+fclean:
+	@cd c_src && $(MAKE) fclean
 
+# Full rebuild
+re:
+	@cd c_src && $(MAKE) re
+
+# Show build info
 info:
-	@echo "CC: $(CC)"
-	@echo "CFLAGS: $(CFLAGS)"
-	@echo "Sources: $(C_SOURCES)"
-	@echo "Shared Lib: $(SHARED_LIB)"
-	@echo "Test Exec: $(TEST_EXEC)"
+	@cd c_src && $(MAKE) info
+
+# Help
+help:
+	@echo "Learn2Slither - Build Commands"
+	@echo "================================"
+	@echo "make lib          - Build C library (default)"
+	@echo "make test         - Run C tests"
+	@echo "make valgrind     - Run C tests with memory leak detection"
+	@echo "make clean        - Remove build objects"
+	@echo "make fclean       - Remove all build artifacts + library"
+	@echo "make re           - Full rebuild (fclean + all)"
+	@echo "make info         - Show build configuration"
+	@echo "make help         - Show this help"
+	@echo ""
+	@echo "Python (requires PYTHONPATH setup):"
+	@echo "  python3 tests/test.py           - Run Python tests"
+	@echo "  python3 scripts/train.py --help - Show training options"

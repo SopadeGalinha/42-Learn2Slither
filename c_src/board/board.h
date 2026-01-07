@@ -1,96 +1,110 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   board.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jhogonca <jhogonca@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/07 18:28:16 by jhogonca          #+#    #+#             */
+/*   Updated: 2026/01/07 20:52:37 by jhogonca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef BOARD_H
 # define BOARD_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <stdbool.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <time.h>
+# include <stdbool.h>
 
-// ============= CONFIGURATION =============
-#define BOARD_SIZE 10
-#define NUM_GREEN_APPLES 2
-#define NUM_RED_APPLES 1
-#define NUM_APPLES (NUM_GREEN_APPLES + NUM_RED_APPLES)
-#define MAX_SNAKE_LENGTH ((BOARD_SIZE * BOARD_SIZE) - 1)
+# define BOARD_SIZE 10
+# define NUM_GREEN_APPLES 2
+# define NUM_RED_APPLES 1
+# define NUM_APPLES 3
+# define MAX_SNAKE_LENGTH 99
 
-// ============= REWARDS (for RL) =============
-#define REWARD_GREEN_APPLE  (10.0f)
-#define REWARD_RED_APPLE    (-10.0f)
-#define REWARD_DEATH        (-50.0f)   // wall, self, or length-zero
-#define REWARD_STEP         (-0.1f)    // small living/step penalty
+# define REWARD_GREEN_APPLE 10.0f
+# define REWARD_RED_APPLE -10.0f
+# define REWARD_DEATH -50.0f
+# define REWARD_STEP -0.1f
 
-// ============= COMPILE-TIME VALIDATION =============
-#if BOARD_SIZE < 10
-# error "BOARD_SIZE must be at least 10"
-#endif
+typedef enum e_direction
+{
+	UP = 0,
+	LEFT = 1,
+	DOWN = 2,
+	RIGHT = 3
+}	t_direction;
 
-#if NUM_GREEN_APPLES < 1 || NUM_GREEN_APPLES > 5
-# error "NUM_GREEN_APPLES must be between 1 and 5"
-#endif
+typedef enum e_board_cell
+{
+	EMPTY = 0,
+	WALL = 1,
+	SNAKE_HEAD = 2,
+	SNAKE_BODY = 3,
+	GREEN_APPLE = 4,
+	RED_APPLE = 5
+}	t_board_cell;
 
-#if NUM_RED_APPLES < 1 || NUM_RED_APPLES > 5
-# error "NUM_RED_APPLES must be between 1 and 5"
-#endif
+typedef enum e_actions
+{
+	HIT_WALL = 1,
+	HIT_SELF = 2,
+	ATE_GREEN_APPLE = 3,
+	ATE_RED_APPLE = 4,
+	LENGTH_ZERO = 5
+}	t_actions;
 
-#if (NUM_APPLES > (BOARD_SIZE * BOARD_SIZE) / 4)
-# error "Total apples exceeds 25% of board capacity"
-#endif
+typedef struct s_apple
+{
+	int	x;
+	int	y;
+}	t_apple;
 
-// ============= TYPES =============
-typedef enum {
-    EMPTY       = 0b000,  // 0
-    WALL        = 0b001,  // 1
-    SNAKE_HEAD  = 0b010,  // 2  
-    SNAKE_BODY  = 0b011,  // 3
-    GREEN_APPLE = 0b100,  // 4
-    RED_APPLE   = 0b101   // 5
-} BoardCell;
+typedef struct s_snake
+{
+	int	*x;
+	int	*y;
+	int	head_idx;
+	int	length;
+}	t_snake;
 
-typedef enum {
-    UP = 0,    /**< Move up */
-    LEFT = 1,  /**< Move left */
-    DOWN = 2,  /**< Move down */
-    RIGHT = 3  /**< Move right */
-} Direction;
+typedef struct s_board
+{
+	t_board_cell	**grid;
+	t_snake			snake;
+	int				size;
+	int				max_snake_length;
+	int				num_apples;
+	int				num_green_apples;
+	int				num_red_apples;
+	bool			game_over;
+	int				score;
+	int				moves;
+	int				max_length;
+	int				green_apples_count;
+	int				red_apples_count;
+	t_apple			*apples;
+}	t_board;
 
-typedef enum {
-    HIT_WALL = 1,
-    HIT_SELF = 2,
-    ATE_GREEN_APPLE = 3,
-    ATE_RED_APPLE = 4,
-    LENGTH_ZERO = 5
-} Actions;
-
-typedef struct Board Board;
-
-// ============= PUBLIC API =============
-
-// Creation/Destruction
-Board*  board_create(void);
-void    board_destroy(Board* board);
-
-// Game control
-void    board_reset(Board* board);
-int     board_move(Board* board, Direction action);
-
-// State query
-bool    board_is_game_over(const Board* board);
-int     board_get_score(const Board* board);
-int     board_get_length(const Board* board);
-int     board_get_max_length(const Board* board);
-int     board_get_moves(const Board* board);
-unsigned short board_get_state(const Board* board);  // Snake vision (12 bits)
-BoardCell board_get_cell(const Board* board, int x, int y);
-int     board_get_size(void);
-
-// Rewards accessors (mirrors macros for Python/ctypes)
-float   board_get_reward_green_apple(void);
-float   board_get_reward_red_apple(void);
-float   board_get_reward_death(void);
-float   board_get_reward_step(void);
-
-// Debug/display
-void    board_print(const Board* board);
+t_board				*board_create(int size);
+void				board_destroy(t_board *board);
+void				board_reset(t_board *board);
+int					board_move(t_board *board, t_direction action);
+bool				board_is_game_over(const t_board *board);
+int					board_get_score(const t_board *board);
+int					board_get_length(const t_board *board);
+int					board_get_max_length(const t_board *board);
+int					board_get_moves(const t_board *board);
+unsigned short		board_get_state(const t_board *board);
+t_board_cell		board_get_cell(const t_board *board, int x, int y);
+int					board_get_size(const t_board *board);
+float				board_get_reward_green_apple(void);
+float				board_get_reward_red_apple(void);
+float				board_get_reward_death(void);
+float				board_get_reward_step(void);
+void				board_print(const t_board *board);
 
 #endif

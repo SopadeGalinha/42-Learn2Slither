@@ -8,10 +8,15 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 from slither import GameBoard
-from slither.utils import RenderMode, get_direction, print_vision, print_summary
+from slither.utils import (
+    RenderMode,
+    get_direction,
+    print_summary,
+    print_vision,
+)
 
 if TYPE_CHECKING:
-    from slither import Viewer, RenderInfo
+    from slither import Viewer
 
 # Runtime import for optional viewer
 try:
@@ -44,13 +49,28 @@ def parse_args() -> argparse.Namespace:
         default=RenderMode.STEP,
         help="Render mode",
     )
-    parser.add_argument("--fps", type=int, default=10, help="FPS when rendering")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Show snake vision in terminal"
+        "--fps",
+        type=int,
+        default=10,
+        help="FPS when rendering",
     )
     parser.add_argument(
-        "--keep-open", action="store_true", help="Keep viewer open after training"
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Show snake vision in terminal",
+    )
+    parser.add_argument(
+        "--keep-open",
+        action="store_true",
+        help="Keep viewer open after training",
     )
     return parser.parse_args()
 
@@ -59,11 +79,18 @@ def create_viewer(render_mode: RenderMode, fps: int) -> Optional[Viewer]:
     if render_mode == RenderMode.NONE:
         return None
     if _Viewer is None or _RenderInfo is None:
-        raise RuntimeError("Viewer not available; install pygame or set --render none")
+        raise RuntimeError(
+            "Viewer not available; install pygame or set --render none"
+        )
 
     is_step_mode = render_mode == RenderMode.STEP
     effective_fps = 60 if render_mode == RenderMode.FAST else fps
-    return _Viewer(cell_size=32, fps=effective_fps, step_mode=is_step_mode, manual_mode=True)
+    return _Viewer(
+        cell_size=32,
+        fps=effective_fps,
+        step_mode=is_step_mode,
+        manual_mode=True,
+    )
 
 
 def run_episode(
@@ -129,7 +156,11 @@ def run_episode(
         if done:
             break
 
-    return EpisodeResult(steps=steps, score=board.score, total_reward=total_reward)
+    return EpisodeResult(
+        steps=steps,
+        score=board.score,
+        total_reward=total_reward,
+    )
 
 
 def main() -> None:
@@ -155,10 +186,12 @@ def main() -> None:
             result = run_episode(board, args, viewer, ep)
             max_length = max(max_length, board.max_length)
             max_duration = max(max_duration, result.steps)
-            print(
+            episode_msg = (
                 f"Episode {ep:04d}: steps={result.steps} score={result.score} "
-                f"return={result.total_reward:.2f} length={board.length} max_length={board.max_length}"
+                f"return={result.total_reward:.2f} length={board.length} "
+                f"max_length={board.max_length}"
             )
+            print(episode_msg)
     finally:
         if viewer is not None:
             if args.keep_open:

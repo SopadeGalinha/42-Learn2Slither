@@ -1,6 +1,7 @@
 """
 Reward constants mirrored from the C board engine.
-Values are fetched via ctypes from the compiled library to keep Python and C in sync.
+Values are fetched via ctypes from the compiled library.
+This keeps the Python and C implementations in sync.
 """
 
 from ctypes import c_float

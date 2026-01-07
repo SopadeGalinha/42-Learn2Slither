@@ -11,8 +11,7 @@ It includes:
 - A Python wrapper class for the C Board structure
 """
 
-from .board import GameBoard
-from ._types import BoardCell, Direction, Actions
+from .core import GameBoard, BoardCell, Direction, Actions
 
 __version__ = "0.1.0"
 __author__ = "Jhonata Pereira"
@@ -20,9 +19,9 @@ __all__ = ["GameBoard", "BoardCell", "Direction", "Actions"]
 
 # Viewer is optional (requires pygame)
 try:  # pragma: no cover - optional dependency
-	from .viewer import Viewer, RenderInfo
+    from .viewer import Viewer, RenderInfo
 
-	__all__.extend(["Viewer", "RenderInfo"])
+    __all__.extend(["Viewer", "RenderInfo"])
 except ImportError:
-	Viewer = None  # type: ignore
-	RenderInfo = None  # type: ignore
+    Viewer = None  # type: ignore
+    RenderInfo = None  # type: ignore

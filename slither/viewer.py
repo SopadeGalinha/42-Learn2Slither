@@ -5,6 +5,8 @@ import os
 from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass
 
+from .core._types import BoardCell
+
 # Hide pygame welcome message
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
@@ -15,7 +17,6 @@ except ImportError as exc:  # pragma: no cover - optional dependency
         "Pygame is required for the viewer. Install with `pip install pygame`."
     ) from exc
 
-from ._types import BoardCell
 
 if TYPE_CHECKING:
     from .board import GameBoard
@@ -33,7 +34,8 @@ COLOR_TEXT_DIM: Color = (140, 142, 150)  # Dimmer text
 COLOR_APPLE_GREEN: Color = (80, 220, 100)  # Bright green apple
 COLOR_APPLE_RED: Color = (240, 80, 80)  # Bright red apple
 COLOR_SNAKE_HEAD: Color = (100, 180, 255)  # Blue snake head
-COLOR_SNAKE_HEAD_HIGHLIGHT: Color = (150, 220, 255)  # Highlighted blue snake head
+COLOR_SNAKE_HEAD_HIGHLIGHT: Color = (
+    150, 220, 255)  # Highlighted blue snake head
 COLOR_SNAKE_BODY: Color = (60, 130, 220)  # Blue snake body
 COLOR_WALL: Color = (120, 120, 130)  # Gray walls
 COLOR_HIGHLIGHT: Color = (255, 220, 80)  # Highlight color
@@ -66,20 +68,25 @@ class SessionStats:
     max_length: int = 0
     max_steps: int = 0
     wins: int = 0  # Episodes where length >= 10
-    
+
     # Current episode (reset each episode)
     episode_greens: int = 0
     episode_reds: int = 0
     _last_episode: int = 0
 
-    def update(self, info: RenderInfo, green_eaten: bool = False, red_eaten: bool = False) -> None:
+    def update(
+        self,
+        info: RenderInfo,
+        green_eaten: bool = False,
+        red_eaten: bool = False,
+    ) -> None:
         """Update stats based on current render info."""
         # Detect new episode
         if info.episode != self._last_episode:
             self._last_episode = info.episode
             self.episode_greens = 0
             self.episode_reds = 0
-        
+
         if green_eaten:
             self.episode_greens += 1
         if red_eaten:
@@ -92,7 +99,7 @@ class SessionStats:
     def end_episode(self, info: RenderInfo) -> None:
         """Called when an episode ends."""
         self.episodes_played += 1
-        
+
         if info.step > self.max_steps:
             self.max_steps = info.step
 
@@ -144,7 +151,8 @@ class Viewer:
 
         # Fonts
         self.font = pygame.font.SysFont("monospace", FONT_SIZE_HUD)
-        self.font_title = pygame.font.SysFont("monospace", FONT_SIZE_TITLE, bold=True)
+        self.font_title = pygame.font.SysFont(
+            "monospace", FONT_SIZE_TITLE, bold=True)
         self.font_small = pygame.font.SysFont("monospace", FONT_SIZE_SMALL)
         self.font_splash_title = pygame.font.SysFont(
             "monospace", FONT_SIZE_SPLASH_TITLE, bold=True
@@ -165,7 +173,8 @@ class Viewer:
     def screen(self) -> pygame.Surface:
         """Return the screen surface, raising if not initialized."""
         if self._screen is None:
-            raise RuntimeError("Screen not initialized. Call _ensure_screen() first.")
+            raise RuntimeError(
+                "Screen not initialized. Call _ensure_screen() first.")
         return self._screen
 
     def _ensure_screen(self, board_size: int) -> None:
@@ -177,7 +186,7 @@ class Viewer:
         self._screen = pygame.display.set_mode((width, height))
 
     def show_splash(self, board_size: int = 10) -> bool:
-        """Show splash screen. Returns False if user quit, True if ready to start."""
+        """Show splash screen and wait for player confirmation."""
         self._ensure_screen(board_size)
 
         width = self.screen.get_width()
@@ -193,7 +202,8 @@ class Viewer:
                 if event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_q, pygame.K_ESCAPE):
                         return False
-                    if event.key == pygame.K_RETURN:  # Only ENTER, SPACE is for unpause
+                    if event.key == pygame.K_RETURN:
+                        # ENTER is used to dismiss splash; SPACE unpauses later
                         self._splash_shown = True
                         return True
 
@@ -228,19 +238,22 @@ class Viewer:
             title_surf = self.font_splash_title.render(
                 "LEARN2SLITHER", True, title_color
             )
-            self.screen.blit(title_surf, (center_x - title_surf.get_width() // 2, y))
+            self.screen.blit(
+                title_surf, (center_x - title_surf.get_width() // 2, y))
 
             # Subtitle
             y += 45
             sub_surf = self.font_splash.render(
                 "Reinforcement Learning Snake AI", True, self.text_dim
             )
-            self.screen.blit(sub_surf, (center_x - sub_surf.get_width() // 2, y))
+            self.screen.blit(
+                sub_surf, (center_x - sub_surf.get_width() // 2, y))
 
             # Separator
             y += 35
             pygame.draw.line(
-                self.screen, self.grid_line, (center_x - 80, y), (center_x + 80, y), 2
+                self.screen, self.grid_line, (center_x -
+                                              80, y), (center_x + 80, y), 2
             )
 
             # Features
@@ -252,8 +265,10 @@ class Viewer:
             ]
             for text, color in features:
                 # Bullet point
-                pygame.draw.circle(self.screen, color, (center_x - 90, y + 7), 4)
-                feat_surf = self.font_splash_small.render(text, True, self.text)
+                pygame.draw.circle(self.screen, color,
+                                   (center_x - 90, y + 7), 4)
+                feat_surf = self.font_splash_small.render(
+                    text, True, self.text)
                 self.screen.blit(feat_surf, (center_x - 75, y))
                 y += 22
 
@@ -272,7 +287,8 @@ class Viewer:
             footer_surf = self.font_splash_small.render(
                 "Q/Esc to quit", True, self.text_dim
             )
-            self.screen.blit(footer_surf, (center_x - footer_surf.get_width() // 2, y))
+            self.screen.blit(
+                footer_surf, (center_x - footer_surf.get_width() // 2, y))
 
             pygame.display.flip()
             self.clock.tick(60)
@@ -338,7 +354,8 @@ class Viewer:
         y += 30
 
         # Subtitle
-        sub_surf = self.font_small.render("Reinforcement Learning", True, self.text_dim)
+        sub_surf = self.font_small.render(
+            "Reinforcement Learning", True, self.text_dim)
         self.screen.blit(sub_surf, (x, y))
         y += 25
 
@@ -362,7 +379,8 @@ class Viewer:
 
         # Goal section
         y += 6
-        goal_surf = self.font_small.render("Goal: Length >= 10", True, self.highlight)
+        goal_surf = self.font_small.render(
+            "Goal: Length >= 10", True, self.highlight)
         self.screen.blit(goal_surf, (x, y))
 
         # Episode Stats section (current episode)
@@ -403,9 +421,11 @@ class Viewer:
         y += 8
         if self.step_mode or self.manual_mode:
             if self.manual_mode:
-                ctrl_surf = self.font_small.render("[Arrows] Move", True, self.text_dim)
+                ctrl_surf = self.font_small.render(
+                    "[Arrows] Move", True, self.text_dim)
             else:
-                ctrl_surf = self.font_small.render("[Space/Enter] Step", True, self.text_dim)
+                ctrl_surf = self.font_small.render(
+                    "[Space/Enter] Step", True, self.text_dim)
             self.screen.blit(ctrl_surf, (x, y))
             y += 14
         quit_surf = self.font_small.render("[Q/Esc] Quit", True, self.text_dim)
@@ -461,7 +481,8 @@ class Viewer:
                     # Add highlight to snake head
                     if cell == BoardCell.SNAKE_HEAD:
                         highlight_rect = inner.inflate(-8, -8)
-                        highlight_rect.topleft = (inner.left + 4, inner.top + 4)
+                        highlight_rect.topleft = (
+                            inner.left + 4, inner.top + 4)
                         pygame.draw.rect(
                             self.screen,
                             COLOR_SNAKE_HEAD_HIGHLIGHT,
@@ -482,7 +503,7 @@ class Viewer:
         return False, False
 
     def get_manual_action(self) -> int:
-        """Wait for arrow key input and return action index. Returns -1 if quit."""
+        """Wait for arrow key input and return -1 if the user quits."""
         # Action mapping: 0=UP, 1=LEFT, 2=DOWN, 3=RIGHT (arrows only)
         key_to_action = {
             pygame.K_UP: 0,
@@ -513,7 +534,10 @@ class Viewer:
                 return False
         return True
 
-    def render(self, board: GameBoard, info: Optional[RenderInfo] = None) -> bool:
+    def render(
+            self,
+            board: GameBoard,
+            info: Optional[RenderInfo] = None) -> bool:
         """Render the current board. Return False if user requested quit."""
         if info is None:
             info = RenderInfo()
@@ -586,11 +610,20 @@ class Viewer:
         center_x = self.screen.get_width() // 2
         center_y = self.screen.get_height() // 2 - 20
 
-        pause_surf = self.font_splash_title.render("PAUSED", True, self.highlight)
-        self.screen.blit(pause_surf, (center_x - pause_surf.get_width() // 2, center_y))
+        pause_surf = self.font_splash_title.render(
+            "PAUSED", True, self.highlight)
+        self.screen.blit(
+            pause_surf, (center_x - pause_surf.get_width() // 2, center_y))
 
-        prompt_surf = self.font_splash.render("[Press SPACE to start]", True, self.text)
-        self.screen.blit(prompt_surf, (center_x - prompt_surf.get_width() // 2, center_y + 50))
+        prompt_surf = self.font_splash.render(
+            "[Press SPACE to start]", True, self.text)
+        self.screen.blit(
+            prompt_surf,
+            (center_x -
+             prompt_surf.get_width() //
+             2,
+             center_y +
+             50))
 
     def _draw_game_over_overlay(self, info: RenderInfo) -> None:
         """Draw game over overlay with stats."""
@@ -607,7 +640,8 @@ class Viewer:
         title = "VICTORY!" if is_win else "GAME OVER"
         title_color = self.apple_green if is_win else self.apple_red
         title_surf = self.font_splash_title.render(title, True, title_color)
-        self.screen.blit(title_surf, (center_x - title_surf.get_width() // 2, y))
+        self.screen.blit(
+            title_surf, (center_x - title_surf.get_width() // 2, y))
 
         # Episode stats box
         y += 50
@@ -616,7 +650,8 @@ class Viewer:
         box_x = center_x - box_width // 2
         box_rect = pygame.Rect(box_x, y, box_width, box_height)
         pygame.draw.rect(self.screen, self.hud_bg, box_rect, border_radius=8)
-        pygame.draw.rect(self.screen, self.grid_line, box_rect, width=2, border_radius=8)
+        pygame.draw.rect(self.screen, self.grid_line,
+                         box_rect, width=2, border_radius=8)
 
         # Stats content
         y += 15
@@ -629,21 +664,28 @@ class Viewer:
         ]
 
         for label, value in stats:
-            label_surf = self.font_small.render(f"{label}:", True, self.text_dim)
-            value_color = self.highlight if label == "Best Length" else self.text
+            label_surf = self.font_small.render(
+                f"{label}:", True, self.text_dim)
+            if label == "Best Length":
+                value_color = self.highlight
+            else:
+                value_color = self.text
             value_surf = self.font_small.render(value, True, value_color)
             self.screen.blit(label_surf, (box_x + 15, y))
-            self.screen.blit(value_surf, (box_x + box_width - 15 - value_surf.get_width(), y))
+            offset = box_x + box_width - 15 - value_surf.get_width()
+            self.screen.blit(value_surf, (offset, y))
             y += 20
 
         # Continue prompt
         y = box_rect.bottom + 20
         prompt = "[SPACE] Continue  [Q] Quit"
-        prompt_surf = self.font_splash_small.render(prompt, True, self.text_dim)
-        self.screen.blit(prompt_surf, (center_x - prompt_surf.get_width() // 2, y))
+        prompt_surf = self.font_splash_small.render(
+            prompt, True, self.text_dim)
+        prompt_x = center_x - prompt_surf.get_width() // 2
+        self.screen.blit(prompt_surf, (prompt_x, y))
 
     def _wait_for_unpause(self) -> bool:
-        """Wait for user to press Space to unpause. Returns False if quit requested."""
+        """Wait for user to press Space; return False if quit is requested."""
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -656,7 +698,7 @@ class Viewer:
             self.clock.tick(30)
 
     def _wait_for_step(self) -> bool:
-        """Wait for user to advance in step mode. Returns False if quit requested."""
+        """Wait for step-mode input and return False if the user quits."""
         while True:
             advance, quit_requested = self._handle_events_step()
             if quit_requested:
@@ -666,7 +708,7 @@ class Viewer:
             self.clock.tick(30)
 
     def wait_for_game_over(self) -> bool:
-        """Wait for user input on game over screen. Returns True to continue, False to quit."""
+        """Wait for the game-over prompt and return True to continue."""
         if self._screen is None:
             return False
         while True:
@@ -704,9 +746,15 @@ class Viewer:
         pygame.quit()
 
     def __repr__(self) -> str:
-        mode = "manual" if self.manual_mode else "step" if self.step_mode else "continuous"
+        if self.manual_mode:
+            mode = "manual"
+        elif self.step_mode:
+            mode = "step"
+        else:
+            mode = "continuous"
         return (
-            f"Viewer(cell_size={self.cell_size}, fps={self.default_fps}, mode={mode})"
+            f"Viewer(cell_size={self.cell_size}, fps={self.default_fps}, "
+            f"mode={mode})"
         )
 
 

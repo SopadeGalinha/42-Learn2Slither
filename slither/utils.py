@@ -3,7 +3,7 @@
 from __future__ import annotations
 from enum import Enum
 
-from ._types import BoardCell, Direction
+from .core._types import BoardCell, Direction
 
 ACTION_TO_DIRECTION = {
     0: Direction.UP,
@@ -22,6 +22,7 @@ CELL_SYMBOLS = {
     BoardCell.GREEN_APPLE: "G",
     BoardCell.RED_APPLE: "R",
 }
+
 
 class RenderMode(Enum):
     NONE = "none"

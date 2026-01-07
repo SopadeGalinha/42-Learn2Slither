@@ -19,7 +19,7 @@ def load_board_library() -> ctypes.CDLL:
     Raises:
         RuntimeError: If libboard.so is not found
     """
-    lib_path = Path(__file__).parent.parent / "lib" / "libboard.so"
+    lib_path = Path(__file__).parent.parent.parent / "lib" / "libboard.so"
 
     if not lib_path.exists():
         raise RuntimeError(

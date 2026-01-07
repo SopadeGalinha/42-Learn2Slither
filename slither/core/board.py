@@ -8,7 +8,7 @@ handling memory management and type conversions.
 from ctypes import c_void_p, c_int, c_bool
 
 from ._library import board_lib
-from ._types import Actions, Direction
+from ._types import Actions
 from .rewards import (
     REWARD_DEATH,
     REWARD_GREEN_APPLE,
@@ -21,8 +21,8 @@ from .rewards import (
 def _setup_c_functions() -> None:
     """Configure C function signatures and return types."""
 
-    # Board* board_create(void)
-    board_lib.board_create.argtypes = []
+    # Board* board_create(int size)
+    board_lib.board_create.argtypes = [c_int]
     board_lib.board_create.restype = c_void_p
 
     # void board_destroy(Board* board)
@@ -65,8 +65,8 @@ def _setup_c_functions() -> None:
     board_lib.board_get_cell.argtypes = [c_void_p, c_int, c_int]
     board_lib.board_get_cell.restype = c_int
 
-    # int board_get_size(void)
-    board_lib.board_get_size.argtypes = []
+    # int board_get_size(const Board* board)
+    board_lib.board_get_size.argtypes = [c_void_p]
     board_lib.board_get_size.restype = c_int
 
     # void board_print(const Board* board)
@@ -96,19 +96,23 @@ class GameBoard:
 
     __slots__ = ("_board",)
 
-    def __init__(self) -> None:
+    def __init__(self, size: int = 10) -> None:
         """
         Create a new game board.
 
         Initializes a board with:
-        - 10x10 grid
-        - Snake with 3 segments at center
+        - Configurable size (8-20, default 10)
+        - Dynamic apple count based on size
+        - Snake with 3 segments
         - Empty game state
+
+        Args:
+            size: Board size (8-20, defaults to 10 if invalid)
 
         Raises:
             MemoryError: If board allocation fails
         """
-        self._board = board_lib.board_create()
+        self._board = board_lib.board_create(size)
         if not self._board:
             raise MemoryError("Failed to allocate memory for board")
 
@@ -116,10 +120,12 @@ class GameBoard:
         """Free memory when board is destroyed."""
         if hasattr(self, "_board") and self._board:
             board_lib.board_destroy(self._board)
+            self._board = None
 
     def __repr__(self) -> str:
         """Return string representation of GameBoard."""
-        return f"<GameBoard at {hex(self._board)}>"
+        ptr_value = self._board or 0
+        return f"<GameBoard at {hex(ptr_value)}>"
 
     def __enter__(self) -> "GameBoard":
         """Context manager entry."""
@@ -149,8 +155,8 @@ class GameBoard:
         """
         Display the board to stdout.
 
-        Shows the game board using box drawing characters and prints
-        current game statistics (score, length, moves).
+        Shows the game board using box drawing characters.
+        Prints current game statistics (score, length, moves).
         """
         board_lib.board_print(self._board)
 
@@ -191,8 +197,8 @@ class GameBoard:
 
     @property
     def size(self) -> int:
-        """Get board dimension (BOARD_SIZE)."""
-        return board_lib.board_get_size()
+        """Get board dimension (actual size)."""
+        return board_lib.board_get_size(self._board)
 
     def get_cell(self, x: int, y: int) -> int:
         """Get the cell value at (x, y)."""
@@ -214,7 +220,11 @@ class GameBoard:
             reward = REWARD_GREEN_APPLE
         elif result == Actions.ATE_RED_APPLE:
             reward = REWARD_RED_APPLE
-        elif result in (Actions.HIT_WALL, Actions.HIT_SELF, Actions.LENGTH_ZERO):
+        elif result in (
+            Actions.HIT_WALL,
+            Actions.HIT_SELF,
+            Actions.LENGTH_ZERO,
+        ):
             reward = REWARD_DEATH
         else:
             reward = REWARD_STEP
