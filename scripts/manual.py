@@ -1,4 +1,4 @@
-"""Manual snake game using Learn2Slither."""
+"""Manual snake gameplay using Learn2Slither."""
 
 from __future__ import annotations
 
@@ -29,6 +29,7 @@ except Exception:  # viewer is optional
 @dataclass
 class EpisodeResult:
     """Result of a single game episode."""
+
     steps: int
     score: int
     total_reward: float
@@ -41,6 +42,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--max-steps", type=int, default=500, help="Max steps per episode"
+    )
+    parser.add_argument(
+        "--size",
+        type=_board_size,
+        default=10,
+        help="Board size (8-20)",
     )
     parser.add_argument(
         "--render",
@@ -70,9 +77,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--keep-open",
         action="store_true",
-        help="Keep viewer open after training",
+        help="Keep viewer open after the final episode",
     )
     return parser.parse_args()
+
+
+def _board_size(value: str) -> int:
+    size = int(value)
+    if not 8 <= size <= 20:
+        raise argparse.ArgumentTypeError("Board size must be between 8 and 20")
+    return size
 
 
 def create_viewer(render_mode: RenderMode, fps: int) -> Optional[Viewer]:
@@ -169,7 +183,7 @@ def main() -> None:
     if args.seed is not None:
         random.seed(args.seed)
 
-    board = GameBoard()
+    board = GameBoard(size=args.size)
     viewer = create_viewer(args.render, args.fps)
 
     # Show splash screen if viewer is enabled

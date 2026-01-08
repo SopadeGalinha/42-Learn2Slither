@@ -1,7 +1,7 @@
 .SILENT:
 MAKEFLAGS += --no-print-directory
 
-.PHONY: all lib clean fclean re test valgrind info help
+.PHONY: all lib clean fclean re test info help
 
 # Default target
 all: lib
@@ -36,7 +36,6 @@ help:
 	@echo "================================"
 	@echo "make lib          - Build C library (default)"
 	@echo "make test         - Run C tests"
-	@echo "make valgrind     - Run C tests with memory leak detection"
 	@echo "make clean        - Remove build objects"
 	@echo "make fclean       - Remove all build artifacts + library"
 	@echo "make re           - Full rebuild (fclean + all)"
@@ -45,4 +44,3 @@ help:
 	@echo ""
 	@echo "Python (requires PYTHONPATH setup):"
 	@echo "  python3 tests/test.py           - Run Python tests"
-	@echo "  python3 scripts/train.py --help - Show training options"

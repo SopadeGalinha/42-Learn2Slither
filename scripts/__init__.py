@@ -1,1 +1,1 @@
-"""Training and evaluation scripts for Learn2Slither."""
+"""Utility scripts (manual play, demos) for Learn2Slither."""
