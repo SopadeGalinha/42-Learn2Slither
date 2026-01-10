@@ -6,7 +6,7 @@
 /*   By: jhogonca <jhogonca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 00:00:00 by jhogonca          #+#    #+#             */
-/*   Updated: 2026/01/07 21:56:10 by jhogonca         ###   ########.fr       */
+/*   Updated: 2026/01/08 14:38:37 by jhogonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 static char	cell_to_symbol(t_board_cell cell);
 static void	build_line(char *buffer, int buf_size, const t_board *board,
-			int x, int y, int step_x, int step_y, bool reverse);
+				int x, int y, int step_x, int step_y, bool reverse);
 
 int	board_get_size(const t_board *board)
 {
@@ -27,9 +27,9 @@ int	board_get_size(const t_board *board)
 
 unsigned short	board_get_state(const t_board *board)
 {
-	int			head_idx;
-	int			head_x;
-	int			head_y;
+	int				head_idx;
+	int				head_x;
+	int				head_y;
 	unsigned short	state;
 
 	if (!board)
@@ -62,10 +62,14 @@ void	board_print(const t_board *board)
 	head_idx = board->snake.head_idx;
 	head_x = board->snake.x[head_idx];
 	head_y = board->snake.y[head_idx];
-	build_line(up, VISION_BUFFER_SIZE, board, head_x, head_y - 1, 0, -1, true);
-	build_line(down, VISION_BUFFER_SIZE, board, head_x, head_y + 1, 0, 1, false);
-	build_line(left, VISION_BUFFER_SIZE, board, head_x - 1, head_y, -1, 0, true);
-	build_line(right, VISION_BUFFER_SIZE, board, head_x + 1, head_y, 1, 0, false);
+	build_line(up, VISION_BUFFER_SIZE, board, head_x,
+		head_y - 1, 0, -1, true);
+	build_line(down, VISION_BUFFER_SIZE, board,
+		head_x, head_y + 1, 0, 1, false);
+	build_line(left, VISION_BUFFER_SIZE, board,
+		head_x - 1, head_y, -1, 0, true);
+	build_line(right, VISION_BUFFER_SIZE, board,
+		head_x + 1, head_y, 1, 0, false);
 	indent = (int)strlen(left);
 	i = 0;
 	while (up[i] != '\0')
@@ -96,9 +100,9 @@ static char	cell_to_symbol(t_board_cell cell)
 static void	build_line(char *buffer, int buf_size, const t_board *board,
 			int x, int y, int step_x, int step_y, bool reverse)
 {
-	int	len;
-	int	limit;
-	int	i;
+	int		len;
+	int		limit;
+	int		i;
 	char	tmp;
 
 	len = 0;

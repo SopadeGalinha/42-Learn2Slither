@@ -14,7 +14,11 @@ dev = [
     "pytest>=7.0",  # For testing
     "pygame>=2.5",  # For game visualization
     "numpy>=1.24",  # For AI calculations
+    "pre-commit>=3.6",  # For git hook management
 ]
+
+[project.scripts]
+learn2slither-manual = "scripts.manual:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

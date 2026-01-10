@@ -39,6 +39,13 @@ pip install -e .[dev]
 ```
 The `dev` extra installs `pygame`, `pytest`, and `numpy`. If you prefer pip without extras, make sure `pygame>=2.5` is installed manually before launching the viewer.
 
+### Command-line entry point
+Installing the package adds a console script so you can launch the manual loop without referencing module paths:
+```bash
+learn2slither-manual --episodes 3 --render slow --fps 12 --size 12
+```
+This script simply delegates to `python -m scripts.manual`, so every CLI flag documented below still applies.
+
 ## Manual Gameplay
 Run the manual loop from the repository root after building the library and installing dependencies:
 ```bash
@@ -71,6 +78,13 @@ python -m scripts.manual --episodes 3 --render slow --fps 12
 | `python -m scripts.manual --size 8 --render slow --keep-open` | Compact grid for quick demos; keeps the viewer open after finishing.
 
 ## Development
+#### Pre-commit hooks
+After completing the editable install, set up the git hooks once:
+```bash
+pre-commit install
+```
+The configuration runs whitespace checks, `flake8`, `clang-format` on `c_src`, `pytest tests/validation`, and `make test`. You can trigger the full suite manually with `pre-commit run --all-files`.
+
 ### C-side validation
 ```bash
 make test      # run the C unit tests
