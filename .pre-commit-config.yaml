@@ -14,7 +14,7 @@ repos:
     rev: v17.0.6
     hooks:
       - id: clang-format
-        files: "\.(c|h)$"
+        files: '\.(c|h)$'
         args: ["-style=LLVM"]
   - repo: local
     hooks:
