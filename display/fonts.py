@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 try:  # pragma: no cover - optional dependency
     import pygame

@@ -12,10 +12,11 @@ It includes:
 """
 
 from .core import GameBoard, BoardCell, Direction, Actions
+from .agent import QLearningAgent
 
 __version__ = "0.1.0"
 __author__ = "Jhonata Pereira"
-__all__ = ["GameBoard", "BoardCell", "Direction", "Actions"]
+__all__ = ["GameBoard", "BoardCell", "Direction", "Actions", "QLearningAgent"]
 
 # Viewer is optional (requires pygame)
 try:  # pragma: no cover - optional dependency

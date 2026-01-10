@@ -13,12 +13,14 @@ dependencies = [
 dev = [
     "pytest>=7.0",  # For testing
     "pygame>=2.5",  # For game visualization
-    "numpy>=1.24",  # For AI calculations
     "pre-commit>=3.6",  # For git hook management
 ]
 
 [project.scripts]
+snake = "snake:main"
+learn2slither = "snake:main"
 learn2slither-manual = "scripts.manual:main"
+learn2slither-train = "train:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

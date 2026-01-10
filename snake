@@ -1,0 +1,6 @@
+#!/bin/bash
+# Wrapper script to run Learn2Slither as specified in the subject
+# Usage: ./snake -sessions 10 -save models/10sess.txt -visual off
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 "$SCRIPT_DIR/snake.py" "$@"

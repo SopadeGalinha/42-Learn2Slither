@@ -180,7 +180,9 @@ class Viewer:
         self._draw_scene(self._last_board, self._last_info)
 
     # ------------------------------------------------------------------
-    def _agent_visible_cells(self, board: "GameBoard") -> set[tuple[int, int]] | None:
+    def _agent_visible_cells(
+        self, board: "GameBoard"
+    ) -> set[tuple[int, int]] | None:
         head = self._find_head(board)
         if head is None:
             return None
@@ -265,14 +267,17 @@ class Viewer:
                 y += 18
 
             y += 20
-            title_surf = self.fonts.splash_title.render("LEARN2SLITHER", True, title_color)
-            self.screen.blit(title_surf, (center_x - title_surf.get_width() // 2, y))
+            title = self.fonts.splash_title.render(
+                "LEARN2SLITHER", True, title_color
+            )
+            self.screen.blit(title, (center_x - title.get_width() // 2, y))
 
             y += 45
             sub_surf = self.fonts.splash.render(
-                "Reinforcement Learning Snake AI", True, theme.text_dim
+                "RL Snake AI", True, theme.text_dim
             )
-            self.screen.blit(sub_surf, (center_x - sub_surf.get_width() // 2, y))
+            cx = center_x
+            self.screen.blit(sub_surf, (cx - sub_surf.get_width() // 2, y))
 
             y += 35
             pygame.draw.line(
@@ -284,14 +289,15 @@ class Viewer:
             )
 
             y += 25
+            cx = center_x
             for text, color in [
                 ("Manual Play", theme.apple_green),
                 ("Display Panel: C", theme.highlight),
                 ("Goal >= Length 10", theme.snake_body),
             ]:
-                pygame.draw.circle(self.screen, color, (center_x - 90, y + 7), 4)
-                info_surf = self.fonts.splash_small.render(text, True, theme.text)
-                self.screen.blit(info_surf, (center_x - 75, y))
+                pygame.draw.circle(self.screen, color, (cx - 90, y + 7), 4)
+                txt = self.fonts.splash_small.render(text, True, theme.text)
+                self.screen.blit(txt, (cx - 75, y))
                 y += 22
 
             y = height - 60
@@ -305,8 +311,10 @@ class Viewer:
                 )
 
             y = height - 25
-            footer = self.fonts.splash_small.render("Q/Esc to quit", True, theme.text_dim)
-            self.screen.blit(footer, (center_x - footer.get_width() // 2, y))
+            foot = self.fonts.splash_small.render(
+                "Q/Esc to quit", True, theme.text_dim
+            )
+            self.screen.blit(foot, (center_x - foot.get_width() // 2, y))
 
             pygame.display.flip()
             self.clock.tick(60)
@@ -395,14 +403,20 @@ class Viewer:
             self.clock.tick(30)
 
     # ------------------------------------------------------------------
+    def wait_for_step(self) -> bool:
+        """Public wrapper for step-by-step wait (used by unified snake CLI)."""
+        return self._wait_for_step()
+
+    # ------------------------------------------------------------------
     def _handle_events_run(self) -> bool:
         for event in pygame.event.get():
             if self._handle_panel_event(event):
                 continue
             if event.type == pygame.QUIT:
                 return False
-            if event.type == pygame.KEYDOWN and event.key in (pygame.K_q, pygame.K_ESCAPE):
-                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_q, pygame.K_ESCAPE):
+                    return False
         return True
 
     # ------------------------------------------------------------------
@@ -458,8 +472,9 @@ class Viewer:
                     continue
                 if event.type == pygame.QUIT:
                     return
-                if event.type == pygame.KEYDOWN and event.key in (pygame.K_q, pygame.K_ESCAPE):
-                    return
+                if event.type == pygame.KEYDOWN:
+                    if event.key in (pygame.K_q, pygame.K_ESCAPE):
+                        return
             self.clock.tick(30)
 
     # ------------------------------------------------------------------
@@ -477,7 +492,7 @@ class Viewer:
         else:
             mode = "continuous"
         return (
-            f"Viewer(cell_size={self.settings.cell_size}, fps={self.default_fps}, "
+            f"Viewer(cell={self.settings.cell_size}, fps={self.default_fps}, "
             f"mode={mode}, theme={self.settings.theme_key})"
         )
 
