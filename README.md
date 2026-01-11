@@ -703,6 +703,8 @@ pre-commit run --all-files
 
 ## References
 
+- [Reinforcement Learning:
+An Introduction](https://web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf)
 - [Q-Learning Algorithm](https://en.wikipedia.org/wiki/Q-learning)
 - [Bellman Equation](https://en.wikipedia.org/wiki/Bellman_equation)
 - [ε-Greedy Policy](https://en.wikipedia.org/wiki/Multi-armed_bandit#Semi-uniform_strategies)
