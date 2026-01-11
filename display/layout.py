@@ -19,8 +19,10 @@ class ViewerLayout:
         return board_size * self.cell_size
 
     def surface_size(self, board_size: int) -> tuple[int, int]:
-        width = self.grid_width(board_size) + self.grid_padding * 3 + self.legend_width
-        height = self.grid_height(board_size) + self.grid_padding * 2 + self.hud_height
+        width = self.grid_width(board_size) + \
+            self.grid_padding * 3 + self.legend_width
+        height = self.grid_height(board_size) + \
+            self.grid_padding * 2 + self.hud_height
         return width, height
 
 

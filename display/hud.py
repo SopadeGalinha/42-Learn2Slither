@@ -92,7 +92,8 @@ def draw_legend(
 
     _blit_text(screen, fonts.title, "Learn2Slither", theme.text, (x, y))
     y += 30
-    _blit_text(screen, fonts.small, "Reinforcement Learning", theme.text_dim, (x, y))
+    _blit_text(screen,
+               fonts.small, "Reinforcement Learning", theme.text_dim, (x, y))
     y += 25
 
     legend_items = [
@@ -110,7 +111,8 @@ def draw_legend(
         y += 20
 
     y += 6
-    _blit_text(screen, fonts.small, "Goal: Length >= 10", theme.highlight, (x, y))
+    _blit_text(screen, fonts.small,
+               "Goal: Length >= 10", theme.highlight, (x, y))
     y += 20
     pygame.draw.line(screen, theme.grid_line, (x, y), (x + 160, y), 1)
     y += 6
@@ -150,7 +152,8 @@ def draw_legend(
     y += 14
     _blit_text(screen, fonts.small, "[Q/Esc] Quit", theme.text_dim, (x, y))
     y += 14
-    _blit_text(screen, fonts.small, "[C] Display Panel", theme.text_dim, (x, y))
+    _blit_text(screen, fonts.small,
+               "[C] Display Panel", theme.text_dim, (x, y))
 
 
 __all__ = ["draw_hud", "draw_legend"]

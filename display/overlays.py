@@ -27,7 +27,8 @@ def draw_pause_overlay(
     pause_surf = fonts.splash_title.render("PAUSED", True, theme.highlight)
     screen.blit(pause_surf, (center_x - pause_surf.get_width() // 2, center_y))
 
-    prompt_surf = fonts.splash.render("[Press SPACE to start]", True, theme.text)
+    prompt_surf = fonts.splash.render(
+        "[Press SPACE to start]", True, theme.text)
     screen.blit(
         prompt_surf,
         (
@@ -63,7 +64,8 @@ def draw_game_over_overlay(
     box_x = center_x - box_width // 2
     box_rect = pygame.Rect(box_x, y, box_width, box_height)
     pygame.draw.rect(screen, theme.hud_background, box_rect, border_radius=8)
-    pygame.draw.rect(screen, theme.grid_line, box_rect, width=2, border_radius=8)
+    pygame.draw.rect(screen, theme.grid_line,
+                     box_rect, width=2, border_radius=8)
 
     y += 15
     stats_rows = [
@@ -79,7 +81,8 @@ def draw_game_over_overlay(
         value_color = theme.highlight if label == "Best Length" else theme.text
         value_surf = fonts.small.render(value, True, value_color)
         screen.blit(label_surf, (box_x + 15, y))
-        screen.blit(value_surf, (box_x + box_width - 15 - value_surf.get_width(), y))
+        screen.blit(value_surf,
+                    (box_x + box_width - 15 - value_surf.get_width(), y))
         y += 20
 
     y = box_rect.bottom + 20

@@ -95,13 +95,16 @@ class ConfigPanel:
             width,
             height,
         )
-        pygame.draw.rect(screen, theme.hud_background, rect, border_radius=10)
-        pygame.draw.rect(screen, theme.grid_line, rect, width=2, border_radius=10)
+        pygame.draw.rect(screen, theme.hud_background,
+                         rect, border_radius=10)
+        pygame.draw.rect(screen, theme.grid_line,
+                         rect, width=2, border_radius=10)
 
         title = fonts.title.render("Display Settings", True, theme.text)
         screen.blit(title, (rect.x + 20, rect.y + 15))
 
-        subtitle = fonts.small.render("[C] Close | Arrows Adjust", True, theme.text_dim)
+        subtitle = fonts.small.render(
+            "[C] Close | Arrows Adjust", True, theme.text_dim)
         screen.blit(subtitle, (rect.x + 20, rect.y + 40))
 
         y = rect.y + 70
@@ -110,7 +113,8 @@ class ConfigPanel:
             label_surf = fonts.hud.render(option.label, True, theme.text)
             value_surf = fonts.hud.render(option.value, True, theme.highlight)
             if is_selected:
-                highlight_rect = pygame.Rect(rect.x + 12, y - 4, rect.width - 24, 30)
+                highlight_rect = pygame.Rect(
+                    rect.x + 12, y - 4, rect.width - 24, 30)
                 pygame.draw.rect(
                     screen,
                     theme.grid_line,
@@ -118,7 +122,8 @@ class ConfigPanel:
                     border_radius=6,
                 )
             screen.blit(label_surf, (rect.x + 20, y))
-            screen.blit(value_surf, (rect.right - value_surf.get_width() - 20, y))
+            screen.blit(value_surf, (
+                rect.right - value_surf.get_width() - 20, y))
             y += 32
 
     # ------------------------------------------------------------------
@@ -134,7 +139,8 @@ class ConfigPanel:
             self._Option("Theme", theme_name),
             self._Option("Cell Size", f"{self.settings.cell_size}px"),
             self._Option("Legend Width", f"{self.settings.legend_width}px"),
-            self._Option("Show HUD", "On" if self.settings.show_hud else "Off"),
+            self._Option(
+                "Show HUD", "On" if self.settings.show_hud else "Off"),
             self._Option(
                 "Show Legend",
                 "On" if self.settings.show_legend else "Off",
