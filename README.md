@@ -4,26 +4,6 @@ This repository implements the Learn2Slither subject defined in the official spe
 
 ---
 
-## Table of Contents
-
-- [1. Project Overview](#1-project-overview)
-- [2. Project Architecture](#2-project-architecture)
-- [3. Detailed Mandatory Parts Documentation](#3-detailed-mandatory-parts-documentation)
-    - [Part 1: Environment / Board](#part-1-environment--board)
-    - [Part 2: State](#part-2-state)
-    - [Part 3: Action](#part-3-action)
-    - [Part 4: Rewards](#part-4-rewards)
-    - [Part 5: Q-learning](#part-5-q-learning)
-    - [Part 6: Technical Structure](#part-6-technical-structure)
-- [4. Bonus Features](#4-bonus-features)
-- [5. How to Build and Run](#5-how-to-build-and-run)
-- [6. Results and Observations](#6-results-and-observations)
-- [7. Limitations and Possible Improvements](#7-limitations-and-possible-improvements)
-- [Appendix: References and Files](#appendix-references-and-files)
-- [License](#license)
-
----
-
 ## 1. Project Overview
 
 - Goal: Train a snake agent via reinforcement learning (Q-learning) to navigate a board, grow to length ≥ 10, and survive as long as possible.
