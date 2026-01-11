@@ -109,6 +109,12 @@ Examples:
         help="Print snake vision to terminal",
     )
 
+    parser.add_argument(
+        "-evaluation",
+        action="store_true",
+        help="Force subject-compliant defaults for evaluation (size=10, verbose on)",
+    )
+
     # Q-learning hyperparameters
     parser.add_argument(
         "-alpha",
@@ -156,6 +162,11 @@ def create_viewer(args: argparse.Namespace):
         from slither import Viewer, RenderInfo
     except ImportError:
         print("Warning: pygame not available, running without visualization")
+        return None
+
+    # If optional viewer failed to import earlier, bail out gracefully
+    if Viewer is None:
+        print("Warning: viewer unavailable (pygame missing), running without visualization\n")
         return None
 
     return Viewer(
@@ -283,6 +294,13 @@ def run_episode_visual(
 def main() -> int:
     """Main entry point for the unified snake CLI."""
     args = parse_args()
+
+    # Evaluation preset: enforce subject defaults regardless of user inputs
+    if getattr(args, "evaluation", False):
+        args.size = 10
+        args.verbose = True
+        args.visual = "on"
+        args.step_by_step = False
 
     # Set random seed if provided
     if args.seed is not None:

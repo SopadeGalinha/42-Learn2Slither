@@ -1,114 +1,111 @@
 # Learn2Slither - C Test Suite
 
-Comprehensive test suite para o motor de jogo em C.
+Comprehensive test suite for the C game engine.
 
-## Estrutura
+## Layout
 
 ```
 c_src/tests/
-├── tests.h                      # Header com macros e interfaces
-├── test_board_creation.c        # Testes de criação/destruição (5 funcs)
-├── test_board_edge_cases.c      # Testes de edge cases (5 funcs)
-├── test_board_validation.c      # Testes de validação (5 funcs)
-├── test_board_memory.c          # Testes de memória/stress (5 funcs)
-├── test_runner.c                # Main e coordenação (1 func)
-└── Makefile                     # Compilação dos testes
+├── tests.h                      # Macros and shared interfaces
+├── test_board_creation.c        # Creation/destruction (5 funcs)
+├── test_board_edge_cases.c      # Edge cases (5 funcs)
+├── test_board_validation.c      # Validation (5 funcs)
+├── test_board_memory.c          # Memory/stress (5 funcs)
+├── test_runner.c                # Main coordinator (1 func)
+└── Makefile                     # Test build
 ```
 
-## Executar Testes
+## Running Tests
 
-### Testes normais
+`make test` already runs Valgrind by default.
+
 ```bash
 cd c_src/tests && make test
 ```
 
-### Com Valgrind (detecção de memory leaks)
+## Cleaning
+
 ```bash
-cd c_src/tests && make valgrind
+cd c_src/tests && make clean   # Remove objects
+cd c_src/tests && make fclean  # Remove executable
 ```
 
-### Limpar artefatos
-```bash
-cd c_src/tests && make clean   # Remove objetos
-cd c_src/tests && make fclean  # Remove executável
-```
+## Test Coverage
 
-## Cobertura de Testes
+### Test: Board Creation (4 tests)
+- ✅ Create board size 10
+- ✅ Destroy board cleanly
+- ✅ Create with max size 20
+- ✅ Create with min size 8
 
-### Test: Board Creation (4 testes)
-- ✅ Criar board com tamanho 10
-- ✅ Destruir board corretamente
-- ✅ Criar com tamanho máximo (20)
-- ✅ Criar com tamanho mínimo (8)
+### Test: Edge Cases (4 tests)
+- ✅ Too small (< 8) → defaults to 10
+- ✅ Too large (> 20) → defaults to 10
+- ✅ Negative size → defaults to 10
+- ✅ Zero size → defaults to 10
 
-### Test: Edge Cases (4 testes)
-- ✅ Size muito pequeno (< 8) → defaults para 10
-- ✅ Size muito grande (> 20) → defaults para 10
-- ✅ Size negativo → defaults para 10
-- ✅ Size zero → defaults para 10
+### Test: Board Validation (4 tests)
+- ✅ Snake initialized correctly
+- ✅ Apple counts correct (2 green, 1 red for size 10)
+- ✅ Board reset works
+- ✅ Game not over initially
 
-### Test: Board Validation (4 testes)
-- ✅ Snake inicializada corretamente
-- ✅ Apples count correto (2 green, 1 red para size 10)
-- ✅ Board reset funciona
-- ✅ Game não está "over" inicialmente
+### Test: Memory & Stress (4 tests)
+- ✅ Multiple create/destroy (100 iterations) → no leaks
+- ✅ Destroy NULL board is safe
+- ✅ Allocate multiple sizes
+- ✅ State consistency
 
-### Test: Memory & Stress (4 testes)
-- ✅ Multiple create/destroy (100 iterações) → sem leaks
-- ✅ Destruir board NULL (seguro)
-- ✅ Alocação de múltiplos tamanhos
-- ✅ Consistência de estado
+## 42 Norminette Compliance
 
-## Conformidade 42 Norminette
+✅ Max 5 functions per file
+✅ Max 25 lines per function
+✅ Max 4 variables per function
+✅ 42 headers on all files
+✅ No warnings (-Wall -Wextra -Werror)
 
-✅ Máximo 5 funções por arquivo
-✅ Máximo 25 linhas por função
-✅ Máximo 4 variáveis por função
-✅ Headers 42 em todos os arquivos
-✅ Sem warnings (-Wall -Wextra -Werror)
-
-## Resultado Valgrind
+## Valgrind Result
 
 ```
 ==14680== HEAP SUMMARY:
 ==14680==     in use at exit: 0 bytes in 0 blocks
 ==14680==   total heap usage: 2,767 allocs, 2,767 frees
-==14680== 
+==14680==
 ==14680== All heap blocks were freed -- no leaks are possible
 ==14680== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 ```
 
-✅ **Sem memory leaks**
-✅ **Sem segmentation faults**
-✅ **Todos os 16 testes passam**
+✅ **No memory leaks**
+✅ **No segmentation faults**
+✅ **All 16 tests pass**
 
-## Macros de Teste
+## Test Macros
 
 ```c
-// Assertion simples
-ASSERT(condition, "mensagem de erro")
+// Simple assertion
+ASSERT(condition, "error message")
 
-// Assertion com comparação de igualdade
-ASSERT_EQ(actual, expected, "mensagem")
+// Equality assertion
+ASSERT_EQ(actual, expected, "message")
 
-// Correr um teste (incrementa counters automaticamente)
-RUN_TEST("nome do teste", test_function)
+// Run a test (increments counters automatically)
+RUN_TEST("test name", test_function)
 ```
 
-## Como Adicionar Novo Teste
+## How to Add a New Test
 
-1. Criar função `static bool test_something(void)`
-2. Usar `ASSERT` ou `ASSERT_EQ` para validações
-3. Adicionar ao struct `t_test_result` no runner
-4. Chamar `RUN_TEST("nome", test_something)` no runner
+1. Create `static bool test_something(void)`
+2. Use `ASSERT` or `ASSERT_EQ` for checks
+3. Add it to the `t_test_result` struct in the runner
+4. Call `RUN_TEST("name", test_something)` in the runner
 
-Exemplo:
+Example:
 ```c
 static bool test_example(void)
 {
     Board *board = board_create(10);
-    ASSERT(board != NULL, "Alocação falhou");
-    ASSERT_EQ(board->size, 10, "Tamanho incorreto");
+    ASSERT(board != NULL, "Allocation failed");
+    ASSERT_EQ(board->size, 10, "Wrong size");
     board_destroy(board);
     return (true);
 }

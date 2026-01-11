@@ -3,4 +3,11 @@
 # Usage: ./snake -sessions 10 -save models/10sess.txt -visual off
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec python3 "$SCRIPT_DIR/snake.py" "$@"
+
+# Allow shorthand "./snake evaluation" to mean "./snake -evaluation"
+if [ "$#" -ge 1 ] && [ "$1" = "evaluation" ]; then
+	shift
+	set -- -evaluation "$@"
+fi
+
+exec poetry run python3 "$SCRIPT_DIR/snake.py" "$@"
