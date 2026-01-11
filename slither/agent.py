@@ -18,8 +18,8 @@ class QLearningAgent:
         alpha: float = 0.1,
         gamma: float = 0.95,
         epsilon: float = 1.0,
-        min_epsilon: float = 0.05,
-        epsilon_decay: float = 0.995,
+        min_epsilon: float = 0.1,
+        epsilon_decay: float = 0.999,
         num_actions: int = 4,
     ) -> None:
         self.alpha = alpha

@@ -137,14 +137,14 @@ Examples:
     parser.add_argument(
         "-min-epsilon",
         type=float,
-        default=0.05,
+        default=0.1,
         dest="min_epsilon",
         help="Minimum exploration rate (default: 0.05)",
     )
     parser.add_argument(
         "-epsilon-decay",
         type=float,
-        default=0.995,
+        default=0.999,
         dest="epsilon_decay",
         help="Epsilon decay rate per episode (default: 0.995)",
     )
