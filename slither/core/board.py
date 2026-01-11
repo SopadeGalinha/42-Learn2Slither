@@ -198,7 +198,10 @@ class GameBoard:
     @property
     def size(self) -> int:
         """Get board dimension (actual size)."""
-        return board_lib.board_get_size(self._board)
+        size = board_lib.board_get_size(self._board)
+        if size < 0:
+            raise RuntimeError("Board pointer is null; size unavailable")
+        return size
 
     def get_cell(self, x: int, y: int) -> int:
         """Get the cell value at (x, y)."""
